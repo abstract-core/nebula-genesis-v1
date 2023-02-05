@@ -1,0 +1,36 @@
+{
+  "name": "nebula-genesis",
+  "version": "0.1.0",
+  "description": "Helpers' set of Nebula websites.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abstract-core/nebula-genesis.git"
+  },
+  "keywords": [
+    "notion",
+    "gatsby",
+    "typescript",
+    "api",
+    "jamstack",
+    "ssr"
+  ],
+  "author": "Skaant",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/abstract-core/nebula-genesis/issues"
+  },
+  "homepage": "https://github.com/abstract-core/nebula-genesis#readme",
+  "dependencies": {
+    "@notionhq/client": "^2.2.3",
+    "statikon": "^0.1.12"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.4.0",
+    "jest": "^29.4.1",
+    "ts-jest": "^29.0.5"
+  }
+}
