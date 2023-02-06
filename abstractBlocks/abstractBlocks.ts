@@ -12,7 +12,7 @@ import {
  * * Multiple *numbered list items* to *numbered list*,
  * * (TODO) Multiple *images* to *carousel*,
  */
-export default async function blocksAbstract(blocks: BlockObjectResponse[]) {
+export default function abstractBlocks(blocks: BlockObjectResponse[]) {
   return blocks.reduce((_blocks, block) => {
     const prevBlock = _blocks.pop();
     if (

@@ -4,7 +4,9 @@
   "description": "Helpers' set of Nebula websites.",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "e2e-main": "jest getDatabaseContent.e2e.spec.ts --runInBand",
+    "e2e-main-resize": "jest getDatabaseContent.e2e.spec.ts --runInBand -t resize"
   },
   "repository": {
     "type": "git",

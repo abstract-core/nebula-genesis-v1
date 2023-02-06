@@ -3,18 +3,12 @@ import {
   PageObjectResponse,
   QueryDatabaseResponse,
 } from "@notionhq/client/build/src/api-endpoints";
-import { ExtendedBlockObjectResponse } from "statikon";
-import getBlocks from "../getBlocks/getBlocks";
 
-export type DatabasePage = PageObjectResponse & {
-  blocks: ExtendedBlockObjectResponse[];
-};
-
-export default async function getDatabase(
+export default async function getDatabasePages(
   notion: Client,
   databaseId: string,
   params: object = {}
-): Promise<DatabasePage[]> {
+): Promise<PageObjectResponse[]> {
   let res: QueryDatabaseResponse | undefined;
   const pages: PageObjectResponse[] = [];
 
@@ -27,12 +21,5 @@ export default async function getDatabase(
     pages.push(...(res.results as PageObjectResponse[]));
   } while (res.has_more);
 
-  const _pages = await Promise.all(
-    pages.map(async (page) => ({
-      ...page,
-      blocks: await getBlocks(page.id, notion),
-    }))
-  );
-
-  return _pages;
+  return pages;
 }

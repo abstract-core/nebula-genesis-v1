@@ -1,8 +1,7 @@
 import { Client } from "@notionhq/client";
 import { BlockObjectResponse } from "@notionhq/client/build/src/api-endpoints";
-import chainingSpecialBlocks from "./blocksAbstract/blocksAbstract";
 
-export default async function getBlocks(pageId: string, notion: Client) {
+export default async function getPageBlocks(notion: Client, pageId: string) {
   let res;
   const blocks: BlockObjectResponse[] = [];
   do {
@@ -12,6 +11,6 @@ export default async function getBlocks(pageId: string, notion: Client) {
     });
     blocks.push(...(res.results as BlockObjectResponse[]));
   } while (res.has_more);
-  // cacheBlocksImages(blocks);
-  return await chainingSpecialBlocks(blocks);
+
+  return blocks;
 }
