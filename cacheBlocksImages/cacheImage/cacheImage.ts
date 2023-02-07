@@ -1,4 +1,5 @@
 import { stat, writeFile } from "fs/promises";
+import * as sharp from "sharp";
 import fetch from "node-fetch";
 
 export default async function cacheImage(imageUrl: string, siteUrl: string) {
@@ -13,8 +14,49 @@ export default async function cacheImage(imageUrl: string, siteUrl: string) {
         const res = await fetch(imageUrl);
         const buffer = await res.buffer();
         await writeFile(filepath, buffer);
+
+        const metadata = await sharp(
+          `src/static/medias/${filename}`
+        ).metadata();
+
+        const sizes = [
+          {
+            width: 800,
+            path: "--med$1",
+          },
+          {
+            width: 360,
+            path: "--min$1",
+          },
+        ];
+
+        if (metadata.width && metadata.width >= 360 && metadata.width <= 800) {
+          await sharp(`src/static/medias/${filename}`)
+            .rotate()
+            .resize(sizes[1].width)
+            .toFile(
+              `src/static/medias/${filename.replace(
+                /(\.[\w\d_-]+)$/i,
+                sizes[1].path
+              )}`
+            );
+        } else if (metadata.width && metadata.width > 800) {
+          await Promise.all(
+            sizes.map((size) => {
+              return sharp(`src/static/medias/${filename}`)
+                .rotate()
+                .resize(size.width, size.width)
+                .toFile(
+                  `src/static/medias/${filename.replace(
+                    /(\.[\w\d_-]+)$/i,
+                    size.path
+                  )}`
+                );
+            })
+          );
+        }
       }
+      return filename;
     }
-    return filename;
   }
 }
