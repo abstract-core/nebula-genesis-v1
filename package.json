@@ -28,6 +28,7 @@
   "homepage": "https://github.com/abstract-core/nebula-genesis#readme",
   "dependencies": {
     "@notionhq/client": "^2.2.3",
+    "sharp": "^0.31.3",
     "statikon": "^0.1.12"
   },
   "devDependencies": {
