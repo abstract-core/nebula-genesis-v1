@@ -1,4 +1,3 @@
-import { BlockObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { ExtendedBlockObjectResponse } from "statikon";
 import {
   BulletedListBlockObject,
@@ -12,7 +11,7 @@ import {
  * * Multiple *numbered list items* to *numbered list*,
  * * (TODO) Multiple *images* to *carousel*,
  */
-export default function abstractBlocks(blocks: BlockObjectResponse[]) {
+export default function abstractBlocks(blocks: ExtendedBlockObjectResponse[]) {
   return blocks.reduce((_blocks, block) => {
     const prevBlock = _blocks.pop();
     if (
