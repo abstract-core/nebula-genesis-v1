@@ -6,8 +6,8 @@ export default async function cacheImage(imageUrl: string, siteUrl: string) {
   const filename = imageUrl.split("?")[0].split("/").pop() || "";
   if (filename) {
     const filepath = `src/static/medias/${filename}`;
-    const minFilename = filepath.replace(/(\.[\w\d_-]+)$/i, "--min$1");
-    const medFilename = filepath.replace(/(\.[\w\d_-]+)$/i, "--med$1");
+    const minFilepath = filepath.replace(/(\.[\w\d_-]+)$/i, "--min$1");
+    const medFilepath = filepath.replace(/(\.[\w\d_-]+)$/i, "--med$1");
     try {
       await stat(filepath);
     } catch (err) {
@@ -20,19 +20,19 @@ export default async function cacheImage(imageUrl: string, siteUrl: string) {
         const metadata = await sharp(filepath).metadata();
 
         if (metadata.width && metadata.width >= 360 && metadata.width <= 800) {
-          await sharp(filepath).rotate().resize(360).toFile(minFilename);
+          await sharp(filepath).rotate().resize(360).toFile(minFilepath);
         } else if (metadata.width && metadata.width > 800) {
           await Promise.all(
             [{ width: 800 }, { width: 360 }].map((size) => {
               return sharp(`src/static/medias/${filename}`)
                 .rotate()
                 .resize(size.width, size.width)
-                .toFile(size.width === 360 ? minFilename : medFilename);
+                .toFile(size.width === 360 ? minFilepath : medFilepath);
             })
           );
         }
       }
-      return filename;
+      return { filepath, minFilepath, medFilepath };
     }
   }
 }
