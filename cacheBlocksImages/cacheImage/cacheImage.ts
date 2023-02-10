@@ -1,6 +1,6 @@
 import { stat, writeFile } from "fs/promises";
-import * as sharp from "sharp";
 import fetch from "node-fetch";
+const sharp = require("sharp");
 
 export default async function cacheImage(imageUrl: string, siteUrl: string) {
   const filename = imageUrl.split("?")[0].split("/").pop() || "";
