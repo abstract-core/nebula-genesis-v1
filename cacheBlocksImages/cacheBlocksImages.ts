@@ -1,4 +1,4 @@
-import { ExtendedBlockObjectResponse, ResizedImageBlockObject } from "statikon";
+import { ExtendedBlockObjectResponse } from "statikon";
 import cacheImage from "./cacheImage/cacheImage";
 
 export default async function cacheBlocksImages(
@@ -9,17 +9,14 @@ export default async function cacheBlocksImages(
     blocks.map(async (block) => {
       /* Redudant block type checking for TS typing */
       if (block.type === "image" && block.image.type === "file") {
-        /**
-         * @todo `cacheImage` should send back multiple urls
-         *  to provide `ResizedImageBlockObject` below.
-         */
-        const filename = await cacheImage(block.image.file.url, siteUrl);
-        if (filename) {
+        const urls = await cacheImage(block.image.file.url, siteUrl);
+
+        if (typeof urls === "object") {
           block = {
             id: block.id,
             type: "resized_image",
-            standardUrl: `/static/medias/${filename}`,
-          } as ResizedImageBlockObject;
+            ...urls,
+          };
         }
       }
       return block;

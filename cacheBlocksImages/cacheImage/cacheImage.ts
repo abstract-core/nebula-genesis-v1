@@ -1,38 +1,83 @@
 import { stat, writeFile } from "fs/promises";
 import fetch from "node-fetch";
-const sharp = require("sharp");
+import { MultisizedImage } from "statikon";
+import sharp from "sharp";
+import probe from "probe-image-size";
 
-export default async function cacheImage(imageUrl: string, siteUrl: string) {
+function getMinUrl(filename: string) {
+  return `/static/medias/${filename.replace(/(\.[\w\d_-]+)$/i, "--min$1")}`;
+}
+
+function getMedUrl(filename: string) {
+  return `/static/medias/${filename.replace(/(\.[\w\d_-]+)$/i, "--med$1")}`;
+}
+
+export default async function cacheImage(
+  imageUrl: string,
+  siteUrl: string
+): Promise<MultisizedImage | undefined> {
   const filename = imageUrl.split("?")[0].split("/").pop() || "";
+
   if (filename) {
+    const urls: MultisizedImage = {
+      standardUrl: `/static/medias/${filename}`,
+    };
     const filepath = `src/static/medias/${filename}`;
-    const minFilepath = filepath.replace(/(\.[\w\d_-]+)$/i, "--min$1");
-    const medFilepath = filepath.replace(/(\.[\w\d_-]+)$/i, "--med$1");
     try {
       await stat(filepath);
     } catch (err) {
+      let result = await probe(imageUrl);
       const res = await fetch(`${siteUrl}/static/medias/${filename}`);
-      if (res.status === 404) {
+
+      if (
+        res.status === 404 ||
+        (result.width >= 360 && !urls.minUrl && !urls.medUrl)
+      ) {
         const res = await fetch(imageUrl);
         const buffer = await res.buffer();
         await writeFile(filepath, buffer);
 
-        const metadata = await sharp(filepath).metadata();
+        urls.minUrl = getMinUrl(filename);
 
-        if (metadata.width && metadata.width >= 360 && metadata.width <= 800) {
-          await sharp(filepath).rotate().resize(360).toFile(minFilepath);
-        } else if (metadata.width && metadata.width > 800) {
+        if (result.width <= 800) {
+          await sharp(filepath)
+            .rotate()
+            .resize({
+              width: 360,
+              fit: "inside",
+            })
+            .toFile("src" + urls.minUrl);
+        } else {
+          urls.medUrl = getMedUrl(filename);
           await Promise.all(
             [{ width: 800 }, { width: 360 }].map((size) => {
-              return sharp(`src/static/medias/${filename}`)
+              return sharp(filepath)
                 .rotate()
-                .resize(size.width, size.width)
-                .toFile(size.width === 360 ? minFilepath : medFilepath);
+                .resize(size.width, size.width, {
+                  fit: "inside",
+                })
+                .toFile(
+                  size.width === 360 ? "src" + urls.minUrl : "src" + urls.medUrl
+                );
             })
           );
         }
+
+        return urls;
       }
-      return { filepath, minFilepath, medFilepath };
     }
+
+    const minUrl = getMinUrl(filename);
+    try {
+      await stat("src" + minUrl);
+      urls.minUrl = minUrl;
+
+      const medUrl = getMedUrl(filename);
+      try {
+        await stat("src" + medUrl);
+        urls.medUrl = medUrl;
+      } catch (err) {}
+    } catch {}
+    return urls;
   }
 }
