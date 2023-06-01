@@ -1,7 +1,7 @@
 import { stat, writeFile } from "fs/promises";
 import fetch from "node-fetch";
 import { MultisizedImage } from "statikon";
-import sharp from "sharp";
+import { sharp } from "sharp";
 import probe from "probe-image-size";
 
 function getMinUrl(filename: string) {
